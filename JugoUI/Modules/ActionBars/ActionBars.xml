@@ -1,0 +1,8 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <Script file="Core.lua"/>
+    <Script file="Button.lua"/>
+    <Script file="Bar.lua"/>
+    <Script file="StanceBar.lua"/>
+    <Script file="PetBar.lua"/>
+    <Script file="MicroMenu.lua"/>
+</Ui>

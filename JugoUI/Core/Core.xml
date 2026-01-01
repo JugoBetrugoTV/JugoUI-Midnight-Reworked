@@ -1,0 +1,37 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI_shared.xsd">
+    <!--
+        JugoUI Core System
+        Initialize addon framework and core functionality
+    -->
+
+    <!-- Core initialization - must load first -->
+    <Script file="Init.lua"/>
+
+    <!-- Media definitions (fonts, textures, sounds) -->
+    <Script file="Media.lua"/>
+
+    <!-- Utility functions and helpers -->
+    <Script file="Functions.lua"/>
+
+    <!-- API wrapper for Patch 12.0 compatibility -->
+    <Script file="API.lua"/>
+
+    <!-- Animation system -->
+    <Script file="Animation.lua"/>
+
+    <!-- Default configuration values -->
+    <Script file="Defaults.lua"/>
+
+    <!-- Event handling system -->
+    <Script file="Events.lua"/>
+
+    <!-- Module registration system -->
+    <Script file="Modules.lua"/>
+
+    <!-- Tag system for text formatting -->
+    <Script file="Tags.lua"/>
+
+    <!-- Secure handling for 12.0 Secret Values -->
+    <Script file="SecureHandler.lua"/>
+
+</Ui>

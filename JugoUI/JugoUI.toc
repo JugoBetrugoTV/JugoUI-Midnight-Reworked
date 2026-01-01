@@ -1,0 +1,29 @@
+## Interface: 120000
+## Title: |cff00ffffJugo|r|cffffffffUI|r
+## Notes: A complete UI replacement for World of Warcraft: Midnight
+## Notes-deDE: Eine vollständige UI-Ersetzung für World of Warcraft: Midnight
+## Author: JugoBetrugoTV
+## Version: 1.0.0
+## SavedVariables: JugoUIDB
+## SavedVariablesPerCharacter: JugoUICharDB
+## IconTexture: Interface\AddOns\JugoUI\Media\Textures\logo
+## AddonCompartmentFunc: JugoUI_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: JugoUI_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: JugoUI_OnAddonCompartmentLeave
+## X-Category: Interface Enhancements
+## X-Website: https://github.com/JugoBetrugoTV/JugoUI
+## X-License: MIT
+## X-Curse-Project-ID: 000000
+## X-Wago-ID: 000000
+
+# Libraries
+Libs\libs.xml
+
+# Core
+Core\Core.xml
+
+# Modules
+Modules\Modules.xml
+
+# Config
+Config\Config.xml

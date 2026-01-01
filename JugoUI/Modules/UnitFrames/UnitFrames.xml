@@ -1,0 +1,39 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI_shared.xsd">
+    <!--
+        JugoUI UnitFrames Module
+    -->
+
+    <!-- Core module functionality -->
+    <Script file="Core.lua"/>
+
+    <!-- Shared elements -->
+    <Script file="Elements\Health.lua"/>
+    <Script file="Elements\Power.lua"/>
+    <Script file="Elements\Portrait.lua"/>
+    <Script file="Elements\Name.lua"/>
+    <Script file="Elements\Auras.lua"/>
+    <Script file="Elements\ClassPower.lua"/>
+    <Script file="Elements\RaidIcon.lua"/>
+    <Script file="Elements\ReadyCheck.lua"/>
+    <Script file="Elements\ResurrectIcon.lua"/>
+    <Script file="Elements\RoleIcon.lua"/>
+    <Script file="Elements\ThreatIndicator.lua"/>
+    <Script file="Elements\PvPIndicator.lua"/>
+    <Script file="Elements\RestingIndicator.lua"/>
+    <Script file="Elements\CombatIndicator.lua"/>
+    <Script file="Elements\HealPrediction.lua"/>
+    <Script file="Elements\Range.lua"/>
+
+    <!-- Individual unit frames -->
+    <Script file="Units\Player.lua"/>
+    <Script file="Units\Target.lua"/>
+    <Script file="Units\TargetTarget.lua"/>
+    <Script file="Units\Focus.lua"/>
+    <Script file="Units\FocusTarget.lua"/>
+    <Script file="Units\Pet.lua"/>
+    <Script file="Units\PetTarget.lua"/>
+    <Script file="Units\Party.lua"/>
+    <Script file="Units\Boss.lua"/>
+    <Script file="Units\Arena.lua"/>
+
+</Ui>
