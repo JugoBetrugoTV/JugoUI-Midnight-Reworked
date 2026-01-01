@@ -13,7 +13,7 @@ local setmetatable = setmetatable
 AceDB.db_registry = AceDB.db_registry or {}
 AceDB.frame = AceDB.frame or CreateFrame("Frame")
 
-local CallbackHandler
+local CallbackHandler = LibStub("CallbackHandler-1.0", true)
 local CallbackDummy = { Fire = function() end }
 
 local DBObjectLib = {}

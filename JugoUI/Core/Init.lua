@@ -158,10 +158,12 @@ function JugoUI:OnInitialize()
             global = G,
         }, true)
 
-        -- Setup profile callbacks
-        self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
-        self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
-        self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
+        -- Setup profile callbacks (check if RegisterCallback exists)
+        if self.db and self.db.RegisterCallback then
+            self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
+            self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
+            self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
+        end
 
         -- Merge defaults
         self.profile = self.db.profile

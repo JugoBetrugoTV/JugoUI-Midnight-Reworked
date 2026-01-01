@@ -216,21 +216,25 @@ function AceAddon:InitializeAddon(addon)
     safecall(addon.OnInitialize, addon)
 
     local embeds = self.embeds[addon]
-    for libname, v in pairs(embeds) do
-        local lib = LibStub:GetLibrary(libname, true)
-        if lib then
-            safecall(lib.OnEmbedInitialize, lib, addon)
+    if embeds then
+        for libname, v in pairs(embeds) do
+            local lib = LibStub:GetLibrary(libname, true)
+            if lib then
+                safecall(lib.OnEmbedInitialize, lib, addon)
+            end
         end
     end
 
-    for name, module in addon:IterateModules() do
-        self:InitializeAddon(module)
+    if addon.IterateModules then
+        for name, module in addon:IterateModules() do
+            self:InitializeAddon(module)
+        end
     end
 end
 
 function AceAddon:EnableAddon(addon)
     if type(addon) == "string" then addon = AceAddon:GetAddon(addon) end
-    if AceAddon.statuses[addon.name] or not addon.enabledState then return false end
+    if not addon or AceAddon.statuses[addon.name] or not addon.enabledState then return false end
 
     if not AceAddon.statuses[addon.name] then
         AceAddon.statuses[addon.name] = true
@@ -239,15 +243,19 @@ function AceAddon:EnableAddon(addon)
     safecall(addon.OnEnable, addon)
 
     local embeds = self.embeds[addon]
-    for libname, v in pairs(embeds) do
-        local lib = LibStub:GetLibrary(libname, true)
-        if lib then
-            safecall(lib.OnEmbedEnable, lib, addon)
+    if embeds then
+        for libname, v in pairs(embeds) do
+            local lib = LibStub:GetLibrary(libname, true)
+            if lib then
+                safecall(lib.OnEmbedEnable, lib, addon)
+            end
         end
     end
 
-    for name, module in addon:IterateModules() do
-        self:EnableAddon(module)
+    if addon.IterateModules then
+        for name, module in addon:IterateModules() do
+            self:EnableAddon(module)
+        end
     end
 
     return true
@@ -255,20 +263,24 @@ end
 
 function AceAddon:DisableAddon(addon)
     if type(addon) == "string" then addon = AceAddon:GetAddon(addon) end
-    if not AceAddon.statuses[addon.name] then return false end
+    if not addon or not AceAddon.statuses[addon.name] then return false end
 
     safecall(addon.OnDisable, addon)
 
     local embeds = self.embeds[addon]
-    for libname, v in pairs(embeds) do
-        local lib = LibStub:GetLibrary(libname, true)
-        if lib then
-            safecall(lib.OnEmbedDisable, lib, addon)
+    if embeds then
+        for libname, v in pairs(embeds) do
+            local lib = LibStub:GetLibrary(libname, true)
+            if lib then
+                safecall(lib.OnEmbedDisable, lib, addon)
+            end
         end
     end
 
-    for name, module in addon:IterateModules() do
-        self:DisableAddon(module)
+    if addon.IterateModules then
+        for name, module in addon:IterateModules() do
+            self:DisableAddon(module)
+        end
     end
 
     AceAddon.statuses[addon.name] = false
@@ -279,11 +291,14 @@ end
 function AceAddon:IterateAddons() return pairs(self.addons) end
 function AceAddon:IterateAddonStatus() return pairs(self.statuses) end
 
+-- WoW 12.0 API compatibility
+local IsAddOnLoadedCompat = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
+
 local function onEvent(this, event, arg1)
     if event == "ADDON_LOADED" then
         for i = #AceAddon.initializequeue, 1, -1 do
             local addon = AceAddon.initializequeue[i]
-            if IsAddOnLoaded(addon.name) or IsAddOnLoaded("!" .. addon.name) then
+            if IsAddOnLoadedCompat(addon.name) or IsAddOnLoadedCompat("!" .. addon.name) then
                 AceAddon:InitializeAddon(addon)
                 tremove(AceAddon.initializequeue, i)
                 tinsert(AceAddon.enablequeue, addon)
