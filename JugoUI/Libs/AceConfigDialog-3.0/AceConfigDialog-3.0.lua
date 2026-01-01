@@ -158,10 +158,11 @@ function AceConfigDialog:AddToBlizOptions(appName, name, parent, ...)
         error(("AceConfigDialog:AddToBlizOptions(appName, name, parent): No options table registered for '%s'"):format(appName), 2)
     end
 
+    local path = {...}
     local key = appName
-    if ... then
-        for i = 1, select("#", ...) do
-            key = key .. "\001" .. select(i, ...)
+    if #path > 0 then
+        for i = 1, #path do
+            key = key .. "\001" .. path[i]
         end
     end
 
@@ -180,7 +181,7 @@ function AceConfigDialog:AddToBlizOptions(appName, name, parent, ...)
             frame.container.frame:SetAllPoints(frame)
             frame.container.frame:Show()
 
-            FeedOptions(appName, options, frame.container, ...)
+            FeedOptions(appName, options, frame.container, unpack(path))
         end
     end)
 

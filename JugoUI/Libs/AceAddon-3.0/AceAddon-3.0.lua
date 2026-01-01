@@ -170,13 +170,13 @@ function AceAddon:NewAddon(name, ...)
         addon[k] = v
     end
 
+    self.addons[name] = addon
+    AceAddon.embeds[addon] = {}
+
     for i = 1, select("#", ...) do
         local libname = select(i, ...)
         self:EmbedLibrary(addon, libname)
     end
-
-    self.addons[name] = addon
-    AceAddon.embeds[addon] = {}
 
     tinsert(AceAddon.initializequeue, addon)
     return addon

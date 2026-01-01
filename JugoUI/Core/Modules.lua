@@ -17,24 +17,31 @@ E.enabledModules = {}
     Creates a new module with the given name
 ]]
 function E:NewModule(name, ...)
+    if type(name) ~= "string" then
+        E:Error("NewModule: name must be a string, got", type(name))
+        return nil
+    end
+
     if E.modules[name] then
-        E:Error("Module already exists:", name)
+        E:Debug("Module already exists:", name)
         return E.modules[name]
     end
 
-    -- Create module using Ace3
-    local module = E:GetModule(name, true) or LibStub("AceAddon-3.0"):NewAddon(E, name, ...)
-
-    -- Set up module defaults
+    -- Create module as a simple table with mixin
+    local module = {}
     module.name = name
     module.enabled = false
     module.initialized = false
     module.db = nil
 
+    -- Apply module mixin for common functionality
+    E:ApplyModuleMixin(module)
+
     -- Store reference
     E.modules[name] = module
     table.insert(E.moduleOrder, name)
 
+    E:Debug("Module created:", name)
     return module
 end
 

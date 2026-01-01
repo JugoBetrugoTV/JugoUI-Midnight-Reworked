@@ -141,7 +141,7 @@ function E.API:IsActionInRange(slot, unit)
     return IsActionInRange(slot)
 end
 
-function E_API:IsUsableAction(slot)
+function E.API:IsUsableAction(slot)
     if C_ActionBar and C_ActionBar.IsUsableAction then
         return C_ActionBar.IsUsableAction(slot)
     end
