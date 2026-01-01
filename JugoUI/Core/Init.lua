@@ -6,23 +6,20 @@
 
 local ADDON_NAME, Engine = ...
 
--- Create main addon object using Ace3
-local JugoUI = LibStub("AceAddon-3.0"):NewAddon(ADDON_NAME, "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0", "AceHook-3.0", "AceComm-3.0", "AceSerializer-3.0")
-
--- Engine namespace for internal use
-Engine[1] = JugoUI           -- E (addon object)
-Engine[2] = {}               -- L (locale table)
-Engine[3] = {}               -- V (private variables)
-Engine[4] = {}               -- P (profile defaults)
-Engine[5] = {}               -- G (global defaults)
+-- Initialize Engine namespace first (before any library calls)
+Engine[1] = {}              -- E (addon object) - will be populated after AceAddon creation
+Engine[2] = {}              -- L (locale table)
+Engine[3] = {}              -- V (private variables)
+Engine[4] = {}              -- P (profile defaults)
+Engine[5] = {}              -- G (global defaults)
 
 -- Expose to global namespace
 _G[ADDON_NAME] = Engine
 
--- Shortcuts
-local E, L, V, P, G = unpack(Engine)
+-- Get reference to E for setting up basic properties
+local E = Engine[1]
 
--- Version info
+-- Basic addon info (set before AceAddon)
 E.version = "1.0.0"
 E.wowpatch = "12.0.0"
 E.wowbuild = select(4, GetBuildInfo())
@@ -30,13 +27,13 @@ E.addonName = ADDON_NAME
 E.isMidnight = E.wowbuild >= 120000
 
 -- Player info cache
-E.myname = UnitName("player")
-E.myrealm = GetRealmName()
-E.myclass = select(2, UnitClass("player"))
-E.mylocalizedclass = select(1, UnitClass("player"))
-E.myrace = select(2, UnitRace("player"))
-E.myfaction = UnitFactionGroup("player")
-E.mylevel = UnitLevel("player")
+E.myname = UnitName("player") or "Unknown"
+E.myrealm = GetRealmName() or "Unknown"
+E.myclass = select(2, UnitClass("player")) or "WARRIOR"
+E.mylocalizedclass = select(1, UnitClass("player")) or "Warrior"
+E.myrace = select(2, UnitRace("player")) or "Human"
+E.myfaction = UnitFactionGroup("player") or "Alliance"
+E.mylevel = UnitLevel("player") or 1
 E.myguid = nil -- Set on PLAYER_LOGIN
 
 -- Resolution and scaling
@@ -57,16 +54,6 @@ E.modules = {}
 E.registeredModules = {}
 E.initializedModules = {}
 
--- Callback storage for inter-module communication
-E.callbacks = LibStub("CallbackHandler-1.0"):New(E)
-
--- Shared Media library
-E.LSM = LibStub("LibSharedMedia-3.0")
-
--- DataBroker
-E.LDB = LibStub("LibDataBroker-1.1", true)
-E.LDBIcon = LibStub("LibDBIcon-1.0", true)
-
 -- Frame pool for recycling frames
 E.framePool = {}
 
@@ -77,11 +64,13 @@ E.updateQueue = {}
 E.debug = false
 
 --[[
-    Print functions
+    Print functions (available before Ace3)
 ]]
-function E:Print(...)
+local function Print(...)
     print("|cff00ffffJugo|r|cffffffffUI:|r", ...)
 end
+
+E.Print = function(self, ...) Print(...) end
 
 function E:Debug(...)
     if self.debug then
@@ -122,32 +111,70 @@ function E:CanAccessValue(value)
     return true
 end
 
+-- Check if LibStub exists
+if not LibStub then
+    Print("LibStub not found! Please ensure libraries are installed correctly.")
+    return
+end
+
+-- Try to get required libraries
+local AceAddon = LibStub("AceAddon-3.0", true)
+if not AceAddon then
+    Print("AceAddon-3.0 not found! Please ensure Ace3 libraries are installed correctly.")
+    return
+end
+
+-- Create main addon object using Ace3
+local JugoUI = AceAddon:NewAddon(ADDON_NAME, "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0", "AceHook-3.0")
+
+-- Copy all E properties to JugoUI
+for k, v in pairs(E) do
+    if JugoUI[k] == nil then
+        JugoUI[k] = v
+    end
+end
+
+-- Update Engine reference to use JugoUI
+Engine[1] = JugoUI
+
+-- Shortcuts for other files
+local L, V, P, G = Engine[2], Engine[3], Engine[4], Engine[5]
+
+-- Get optional libraries
+JugoUI.callbacks = LibStub("CallbackHandler-1.0", true) and LibStub("CallbackHandler-1.0"):New(JugoUI) or nil
+JugoUI.LSM = LibStub("LibSharedMedia-3.0", true)
+JugoUI.LDB = LibStub("LibDataBroker-1.1", true)
+JugoUI.LDBIcon = LibStub("LibDBIcon-1.0", true)
+
 --[[
     Addon Initialization
 ]]
 function JugoUI:OnInitialize()
     -- Initialize saved variables
-    self.db = LibStub("AceDB-3.0"):New("JugoUIDB", {
-        profile = P,
-        global = G,
-    }, true)
+    local AceDB = LibStub("AceDB-3.0", true)
+    if AceDB then
+        self.db = AceDB:New("JugoUIDB", {
+            profile = P,
+            global = G,
+        }, true)
+
+        -- Setup profile callbacks
+        self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
+        self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
+        self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
+
+        -- Merge defaults
+        self.profile = self.db.profile
+        self.global = self.db.global
+    end
 
     -- Character-specific private settings
     if not JugoUICharDB then JugoUICharDB = {} end
-    E.private = JugoUICharDB
-
-    -- Merge defaults
-    E.db = self.db.profile
-    E.global = self.db.global
-
-    -- Setup profile callbacks
-    self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
-    self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
-    self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
+    self.private = JugoUICharDB
 
     -- Initialize dual spec support if available
     local LibDualSpec = LibStub("LibDualSpec-1.0", true)
-    if LibDualSpec then
+    if LibDualSpec and self.db then
         LibDualSpec:EnhanceDatabase(self.db, ADDON_NAME)
     end
 
@@ -156,9 +183,9 @@ function JugoUI:OnInitialize()
     self:RegisterChatCommand("jui", "SlashCommand")
 
     -- Get player GUID
-    E.myguid = UnitGUID("player")
+    self.myguid = UnitGUID("player")
 
-    E:Print("v" .. E.version .. " loaded. Type /jui for options.")
+    self:Print("v" .. self.version .. " loaded. Type /jui for options.")
 end
 
 function JugoUI:OnEnable()
@@ -169,15 +196,19 @@ function JugoUI:OnEnable()
     self:RegisterEvent("UI_SCALE_CHANGED")
 
     -- Initialize modules
-    E:InitializeModules()
+    if self.InitializeModules then
+        self:InitializeModules()
+    end
 
     -- Fire callback for addons waiting on JugoUI
-    E.callbacks:Fire("JugoUI_Initialized")
+    if self.callbacks then
+        self.callbacks:Fire("JugoUI_Initialized")
+    end
 end
 
 function JugoUI:OnDisable()
     -- Disable all modules
-    for name, module in pairs(E.modules) do
+    for name, module in pairs(self.modules or {}) do
         if module.Disable then
             module:Disable()
         end
@@ -190,39 +221,49 @@ end
 function JugoUI:PLAYER_ENTERING_WORLD(event, isLogin, isReload)
     if isLogin or isReload then
         -- Update player info
-        E.mylevel = UnitLevel("player")
-        E.myguid = UnitGUID("player")
+        self.mylevel = UnitLevel("player")
+        self.myguid = UnitGUID("player")
 
         -- Delayed initialization for some modules
         C_Timer.After(0.5, function()
-            E.callbacks:Fire("JugoUI_Ready")
+            if self.callbacks then
+                self.callbacks:Fire("JugoUI_Ready")
+            end
         end)
     end
 end
 
 function JugoUI:PLAYER_LEVEL_UP(event, level)
-    E.mylevel = level
-    E.callbacks:Fire("JugoUI_LevelUp", level)
+    self.mylevel = level
+    if self.callbacks then
+        self.callbacks:Fire("JugoUI_LevelUp", level)
+    end
 end
 
 function JugoUI:ACTIVE_TALENT_GROUP_CHANGED()
-    E.callbacks:Fire("JugoUI_SpecChanged")
+    if self.callbacks then
+        self.callbacks:Fire("JugoUI_SpecChanged")
+    end
 end
 
 function JugoUI:UI_SCALE_CHANGED()
-    E.uiscale = UIParent:GetScale()
-    E.callbacks:Fire("JugoUI_ScaleChanged")
+    self.uiscale = UIParent:GetScale()
+    if self.callbacks then
+        self.callbacks:Fire("JugoUI_ScaleChanged")
+    end
 end
 
 --[[
     Profile Management
 ]]
 function JugoUI:OnProfileChanged(event, database, newProfileKey)
-    E.db = database.profile
-    E.callbacks:Fire("JugoUI_ProfileChanged")
+    self.profile = database.profile
+    if self.callbacks then
+        self.callbacks:Fire("JugoUI_ProfileChanged")
+    end
 
     -- Refresh all modules
-    for name, module in pairs(E.modules) do
+    for name, module in pairs(self.modules or {}) do
         if module.ProfileChanged then
             module:ProfileChanged()
         end
@@ -236,23 +277,29 @@ function JugoUI:SlashCommand(input)
     input = input and input:trim():lower() or ""
 
     if input == "" or input == "config" or input == "options" then
-        E:OpenConfig()
+        if self.OpenConfig then
+            self:OpenConfig()
+        else
+            self:Print("Configuration not yet available.")
+        end
     elseif input == "debug" then
-        E.debug = not E.debug
-        E:Print("Debug mode:", E.debug and "|cff00ff00ON|r" or "|cffff0000OFF|r")
+        self.debug = not self.debug
+        self:Print("Debug mode:", self.debug and "|cff00ff00ON|r" or "|cffff0000OFF|r")
     elseif input == "version" or input == "ver" then
-        E:Print("Version:", E.version, "| WoW Build:", E.wowbuild)
+        self:Print("Version:", self.version, "| WoW Build:", self.wowbuild)
     elseif input == "reload" or input == "rl" then
         ReloadUI()
     elseif input == "status" then
-        E:PrintModuleStatus()
+        local count = 0
+        for _ in pairs(self.modules or {}) do count = count + 1 end
+        self:Print("Modules loaded:", count)
     else
-        E:Print("Available commands:")
-        E:Print("/jui - Open configuration")
-        E:Print("/jui debug - Toggle debug mode")
-        E:Print("/jui version - Show version info")
-        E:Print("/jui reload - Reload UI")
-        E:Print("/jui status - Show module status")
+        self:Print("Available commands:")
+        self:Print("/jui - Open configuration")
+        self:Print("/jui debug - Toggle debug mode")
+        self:Print("/jui version - Show version info")
+        self:Print("/jui reload - Reload UI")
+        self:Print("/jui status - Show module status")
     end
 end
 
@@ -260,7 +307,10 @@ end
     Addon Compartment (Minimap button menu for 10.0+)
 ]]
 function JugoUI_OnAddonCompartmentClick(addonName, buttonName)
-    E:OpenConfig()
+    local E = _G[ADDON_NAME] and _G[ADDON_NAME][1]
+    if E and E.OpenConfig then
+        E:OpenConfig()
+    end
 end
 
 function JugoUI_OnAddonCompartmentEnter(addonName, menuButtonFrame)

@@ -5,51 +5,51 @@
     -->
 
     <!-- Unit Frames -->
-    <Include file="UnitFrames\UnitFrames.xml"/>
+    <Include file="UnitFrames\load.xml"/>
 
     <!-- Raid Frames -->
-    <Include file="RaidFrames\RaidFrames.xml"/>
+    <Include file="RaidFrames\load.xml"/>
 
     <!-- Nameplates -->
-    <Include file="Nameplates\Nameplates.xml"/>
+    <Include file="Nameplates\load.xml"/>
 
     <!-- Castbars -->
-    <Include file="Castbars\Castbars.xml"/>
+    <Include file="Castbars\load.xml"/>
 
     <!-- Action Bars -->
-    <Include file="ActionBars\ActionBars.xml"/>
+    <Include file="ActionBars\load.xml"/>
 
     <!-- Bags -->
-    <Include file="Bags\Bags.xml"/>
+    <Include file="Bags\load.xml"/>
 
     <!-- Chat -->
-    <Include file="Chat\Chat.xml"/>
+    <Include file="Chat\load.xml"/>
 
     <!-- Minimap -->
-    <Include file="Minimap\Minimap.xml"/>
+    <Include file="Minimap\load.xml"/>
 
     <!-- Tooltip -->
-    <Include file="Tooltip\Tooltip.xml"/>
+    <Include file="Tooltip\load.xml"/>
 
     <!-- Info Bar -->
-    <Include file="InfoBar\InfoBar.xml"/>
+    <Include file="InfoBar\load.xml"/>
 
     <!-- XP/Reputation Bar -->
-    <Include file="XPRepBar\XPRepBar.xml"/>
+    <Include file="XPRepBar\load.xml"/>
 
     <!-- Skins -->
-    <Include file="Skins\Skins.xml"/>
+    <Include file="Skins\load.xml"/>
 
     <!-- Buffs/Auras -->
-    <Include file="Buffs\Buffs.xml"/>
+    <Include file="Buffs\load.xml"/>
 
     <!-- Quality of Life / Miscellaneous -->
-    <Include file="Misc\Misc.xml"/>
+    <Include file="Misc\load.xml"/>
 
     <!-- Profiles -->
-    <Include file="Profiles\Profiles.xml"/>
+    <Include file="Profiles\load.xml"/>
 
     <!-- Credits -->
-    <Include file="Credits\Credits.xml"/>
+    <Include file="Credits\load.xml"/>
 
 </Ui>

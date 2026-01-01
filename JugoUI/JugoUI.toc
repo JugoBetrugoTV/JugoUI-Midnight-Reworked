@@ -17,13 +17,13 @@
 ## X-Wago-ID: 000000
 
 # Libraries
-Libs\libs.xml
+Libs\load.xml
 
 # Core
-Core\Core.xml
+Core\load.xml
 
 # Modules
-Modules\Modules.xml
+Modules\load.xml
 
 # Config
-Config\Config.xml
+Config\load.xml
